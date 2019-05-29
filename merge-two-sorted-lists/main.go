@@ -2,50 +2,35 @@ package main
 
 import "fmt"
 
-/**
- * Definition for singly-linked list.
- * type ListNode struct {
- *     Val int
- *     Next *ListNode
- * }
- */
-
+// ListNode Implement
 type ListNode struct {
 	Val  int
 	Next *ListNode
 }
 
 func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
-	l := []*ListNode{}
+	r := &ListNode{}
+	l := r
 	for l1 != nil || l2 != nil {
 		if l1 == nil {
-			l = append(l, l2)
-			l2 = l2.Next
+			l.Next = l2
 			break
 		}
 		if l2 == nil {
-			l = append(l, l1)
-			l1 = l1.Next
+			l.Next = l1
 			break
 		}
 		if l1.Val > l2.Val {
-			l = append(l, l2)
+			l.Next = l2
 			l2 = l2.Next
 		} else {
-			l = append(l, l1)
+			l.Next = l1
 			l1 = l1.Next
 		}
+		l = l.Next
 	}
 
-	for i := 0; i+1 < len(l); i++ {
-		l[i].Next = l[i+1]
-	}
-
-	if len(l) == 0 {
-		return nil
-	}
-
-	return l[0]
+	return r.Next
 }
 
 func main() {
