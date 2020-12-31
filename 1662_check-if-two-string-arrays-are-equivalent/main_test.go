@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func TestingArrayStringsAreEqual(t *testing.T) {
+func TestArrayStringsAreEqual(t *testing.T) {
 	e1 := arrayStringsAreEqual([]string{"ab", "c"}, []string{"a", "bc"})
 	if e1 != true {
 		t.Error("Example 1 is not correct.")
