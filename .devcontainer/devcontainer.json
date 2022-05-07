@@ -25,8 +25,9 @@
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
+		"GitHub.copilot-labs",
 		"GitHub.copilot",
-		"golang.Go",
+		"golang.Go"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
