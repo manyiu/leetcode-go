@@ -1,42 +1,30 @@
-package main
-
-import "fmt"
+package validparentheses
 
 func isValid(s string) bool {
-	pair := map[rune]rune{
+	m := map[rune]rune{
 		'(': ')',
-		'[': ']',
 		'{': '}',
+		'[': ']',
 	}
 
-	valid := true
-	closes := []rune{}
+	stack := []rune{}
 
-	for _, c := range s {
-		if b, open := pair[c]; open {
-			closes = append([]rune{b}, closes...)
-		} else if len(closes) == 0 {
-			valid = false
-			break
-		} else if c == closes[0] {
-			closes = closes[1:]
-		} else {
-			valid = false
-			break
+	for _, r := range s {
+		if _, ok := m[r]; ok {
+			stack = append(stack, r)
+			continue
 		}
+
+		if len(stack) == 0 {
+			return false
+		}
+
+		if r != m[stack[len(stack)-1]] {
+			return false
+		}
+
+		stack = stack[:len(stack)-1]
 	}
 
-	if len(closes) != 0 {
-		valid = false
-	}
-
-	return valid
-}
-
-func main() {
-	fmt.Println(isValid("()"))
-	fmt.Println(isValid("()[]{}"))
-	fmt.Println(isValid("(]"))
-	fmt.Println(isValid("([)]"))
-	fmt.Println(isValid("{[]}"))
+	return len(stack) == 0
 }
