@@ -1,6 +1,4 @@
-package main
-
-import "fmt"
+package mergetwosortedlists
 
 // ListNode Implement
 type ListNode struct {
@@ -8,60 +6,31 @@ type ListNode struct {
 	Next *ListNode
 }
 
-func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
-	r := &ListNode{}
-	l := r
-	for l1 != nil || l2 != nil {
-		if l1 == nil {
-			l.Next = l2
+func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
+	l := &ListNode{}
+	h := l
+
+	for list1 != nil || list2 != nil {
+		if list1 == nil {
+			h.Next = list2
 			break
 		}
-		if l2 == nil {
-			l.Next = l1
+
+		if list2 == nil {
+			h.Next = list1
 			break
 		}
-		if l1.Val > l2.Val {
-			l.Next = l2
-			l2 = l2.Next
+
+		if list1.Val >= list2.Val {
+			h.Next = list2
+			list2 = list2.Next
 		} else {
-			l.Next = l1
-			l1 = l1.Next
+			h.Next = list1
+			list1 = list1.Next
 		}
-		l = l.Next
+
+		h = h.Next
 	}
 
-	return r.Next
-}
-
-func main() {
-	l1c := ListNode{
-		Val: 4,
-	}
-
-	l1b := ListNode{
-		Val:  2,
-		Next: &l1c,
-	}
-
-	l1a := ListNode{
-		Val:  1,
-		Next: &l1b,
-	}
-
-	l2c := ListNode{
-		Val: 4,
-	}
-
-	l2b := ListNode{
-		Val:  3,
-		Next: &l2c,
-	}
-
-	l2a := ListNode{
-		Val:  1,
-		Next: &l2b,
-	}
-
-	fmt.Println(mergeTwoLists(&l1a, &l2a))
-	fmt.Println(mergeTwoLists(&ListNode{Val: 1}, nil))
+	return l.Next
 }
