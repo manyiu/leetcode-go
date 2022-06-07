@@ -6,15 +6,20 @@ import (
 )
 
 func TestSearch(t *testing.T) {
-	e1 := search([]int{-1, 0, 3, 5, 9, 12}, 9)
-	if e1 != 4 {
-		fmt.Println(e1)
-		t.Error("Example 1 is not correct")
+	var tests = []struct {
+		nums   []int
+		target int
+		want   int
+	}{
+		{[]int{-1, 0, 3, 5, 9, 12}, 9, 4},
+		{[]int{-1, 0, 3, 5, 9, 12}, 2, -1},
 	}
 
-	e2 := search([]int{-1, 0, 3, 5, 9, 12}, 2)
-	if e2 != -1 {
-		fmt.Println(e2)
-		t.Error("Example 1 is not correct")
+	for _, test := range tests {
+		descr := fmt.Sprintf("search(%v, %d)", test.nums, test.target)
+		got := search(test.nums, test.target)
+		if got != test.want {
+			t.Fatalf("%s = %d, want %d", descr, got, test.want)
+		}
 	}
 }

@@ -1,11 +1,10 @@
 package main
 
 func search(nums []int, target int) int {
-	l := 0
-	u := len(nums) - 1
+	l, r := 0, len(nums)-1
 
-	for l <= u {
-		m := (l + u) / 2
+	for l <= r {
+		m := (l + r) / 2
 
 		if nums[m] == target {
 			return m
@@ -14,7 +13,7 @@ func search(nums []int, target int) int {
 		if nums[m] < target {
 			l = m + 1
 		} else {
-			u = m - 1
+			r = m - 1
 		}
 	}
 
