@@ -31,7 +31,7 @@ func buildTree(preorder []int, inorder []int) *TreeNode {
 
 	splitIndex := indexOf(inorder, preorder[0])
 
-	root.Left = buildTree(preorder[1:splitIndex+1], inorder[:splitIndex+1])
+	root.Left = buildTree(preorder[1:splitIndex+1], inorder[:splitIndex])
 	root.Right = buildTree(preorder[splitIndex+1:], inorder[splitIndex+1:])
 
 	return root
