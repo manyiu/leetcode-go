@@ -21,18 +21,13 @@ func buildTree(preorder []int, inorder []int) *TreeNode {
 		return nil
 	}
 
-	root := &TreeNode{
-		Val: preorder[0],
-	}
-
-	if len(preorder) == 1 {
-		return root
-	}
-
 	splitIndex := indexOf(inorder, preorder[0])
 
-	root.Left = buildTree(preorder[1:splitIndex+1], inorder[:splitIndex])
-	root.Right = buildTree(preorder[splitIndex+1:], inorder[splitIndex+1:])
+	root := &TreeNode{
+		Val:   preorder[0],
+		Left:  buildTree(preorder[1:splitIndex+1], inorder[:splitIndex]),
+		Right: buildTree(preorder[splitIndex+1:], inorder[splitIndex+1:]),
+	}
 
 	return root
 }
