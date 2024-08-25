@@ -1,24 +1,23 @@
 package combinationsum
 
-func backtrack(candidates []int, target int, step int, path []int, res *[][]int) {
-	if target < 0 {
+func dfs(candidates []int, target int, index int, member []int, accu *[][]int) {
+	if target < 0 || index >= len(candidates) {
 		return
 	}
 
 	if target == 0 {
-		*res = append(*res, append([]int{}, path...))
+		*accu = append(*accu, append([]int{}, member...))
 		return
 	}
 
-	for i := step; i < len(candidates); i++ {
-		backtrack(candidates, target-candidates[i], i, append(path, candidates[i]), res)
-	}
+	dfs(candidates, target-candidates[index], index, append(member, candidates[index]), accu)
+	dfs(candidates, target, index+1, member, accu)
 }
 
 func combinationSum(candidates []int, target int) [][]int {
-	res := [][]int{}
+	result := [][]int{}
 
-	backtrack(candidates, target, 0, []int{}, &res)
+	dfs(candidates, target, 0, []int{}, &result)
 
-	return res
+	return result
 }
