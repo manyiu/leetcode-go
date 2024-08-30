@@ -4,6 +4,27 @@ type MaxHeap struct {
 	priorityQueue []int
 }
 
+func (heap *MaxHeap) Heapify(nums []int) {
+	pq := append([]int{0}, nums...)
+
+	for i := len(nums) / 2; i >= 1; i-- {
+		curr := i
+		for curr*2 < len(pq) {
+			if curr*2+1 < len(pq) && pq[curr] < pq[curr*2+1] && pq[curr*2] < pq[curr*2+1] {
+				pq[curr], pq[curr*2+1] = pq[curr*2+1], pq[curr]
+				curr = curr*2 + 1
+			} else if pq[curr] < pq[curr*2] {
+				pq[curr], pq[curr*2] = pq[curr*2], pq[curr]
+				curr *= 2
+			} else {
+				break
+			}
+		}
+	}
+
+	heap.priorityQueue = pq
+}
+
 func (heap *MaxHeap) Add(val int) int {
 	heap.priorityQueue = append(heap.priorityQueue, val)
 
@@ -56,9 +77,7 @@ func lastStoneWeight(stones []int) int {
 		priorityQueue: []int{0},
 	}
 
-	for _, stone := range stones {
-		mh.Add(stone)
-	}
+	mh.Heapify(stones)
 
 	for len(mh.priorityQueue) >= 3 {
 		a := mh.Pop()
