@@ -1,4 +1,4 @@
-package main
+package binarysearch
 
 func search(nums []int, target int) int {
 	l, r := 0, len(nums)-1
@@ -19,5 +19,3 @@ func search(nums []int, target int) int {
 
 	return -1
 }
-
-func main() {}
