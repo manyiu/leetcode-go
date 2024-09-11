@@ -1,23 +1,19 @@
 package numberofislands
 
-func mark(grid [][]byte, row int, column int) {
-	if grid[row][column] == '1' {
-		grid[row][column] = '2'
+func dfs(grid [][]byte, r, c int) {
+	if grid[r][c] != '1' {
+		return
+	}
 
-		if row > 0 {
-			mark(grid, row-1, column)
-		}
+	grid[r][c] = '0'
 
-		if row < len(grid)-1 {
-			mark(grid, row+1, column)
-		}
+	dir := [][]int{
+		{0, 1}, {0, -1}, {1, 0}, {-1, 0},
+	}
 
-		if column > 0 {
-			mark(grid, row, column-1)
-		}
-
-		if column < len(grid[0])-1 {
-			mark(grid, row, column+1)
+	for _, step := range dir {
+		if r+step[0] >= 0 && r+step[0] < len(grid) && c+step[1] >= 0 && c+step[1] < len(grid[r]) {
+			dfs(grid, r+step[0], c+step[1])
 		}
 	}
 }
@@ -25,11 +21,12 @@ func mark(grid [][]byte, row int, column int) {
 func numIslands(grid [][]byte) int {
 	count := 0
 
-	for r, row := range grid {
-		for c, e := range row {
-			if e == '1' {
-				count += 1
-				mark(grid, r, c)
+	for i, row := range grid {
+		for j, column := range row {
+			if column == '1' {
+				count++
+
+				dfs(grid, i, j)
 			}
 		}
 	}
