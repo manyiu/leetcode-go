@@ -1,24 +1,39 @@
 package validpalindrome
 
-func isPalindrome(s string) bool {
-	l := []rune{}
-
-	for _, v := range s {
-		if (v >= 'a' && v <= 'z') || (v >= '0' && v <= '9') {
-			l = append(l, v)
-		} else if v >= 'A' && v <= 'Z' {
-			l = append(l, v+('a'-'A'))
-		}
-	}
-
-	if len(l) <= 1 {
+func validChar(c byte) bool {
+	if (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') {
 		return true
 	}
 
-	for i := 0; i <= (len(l) / 2); i++ {
-		if l[i] != l[len(l)-1-i] {
+	return false
+}
+
+func encodeChar(c byte) byte {
+	if c >= 'a' && c <= 'z' {
+		return c - ('a' - 'A')
+	} else {
+		return c
+	}
+}
+
+func isPalindrome(s string) bool {
+	l, r := 0, len(s)-1
+
+	for l < r {
+		for !validChar(s[l]) {
+			l++
+		}
+
+		for !validChar(s[r]) {
+			r--
+		}
+
+		if encodeChar(s[l]) != encodeChar(s[r]) {
 			return false
 		}
+
+		l++
+		r--
 	}
 
 	return true
