@@ -4,22 +4,22 @@ import (
 	"container/heap"
 )
 
-type minHeap [][2]int
+type minHeap [][]int
 
 func (mh minHeap) Len() int {
 	return len(mh)
-}
-
-func (mh minHeap) Less(i, j int) bool {
-	return mh[i][1] < mh[j][1]
 }
 
 func (mh minHeap) Swap(i, j int) {
 	mh[i], mh[j] = mh[j], mh[i]
 }
 
+func (mh minHeap) Less(i, j int) bool {
+	return mh[i][2] < mh[j][2]
+}
+
 func (mh *minHeap) Push(x interface{}) {
-	*mh = append(*mh, x.([2]int))
+	*mh = append(*mh, x.([]int))
 }
 
 func (mh *minHeap) Pop() interface{} {
@@ -29,151 +29,152 @@ func (mh *minHeap) Pop() interface{} {
 	return x
 }
 
-func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
-	adjs := make([][][2]int, n)
+type unionFind struct {
+	parent []int
+	rank   []int
+}
 
+func (uf unionFind) Find(node int) int {
+	curr := node
+
+	for curr != uf.parent[curr] {
+		uf.parent[curr] = uf.parent[uf.parent[curr]]
+		curr = uf.parent[curr]
+	}
+
+	return curr
+}
+
+func (uf unionFind) Union(a, b int) bool {
+	rootA := uf.Find(a)
+	rootB := uf.Find(b)
+
+	if rootA == rootB {
+		return false
+	}
+
+	if uf.rank[rootA] < uf.rank[rootB] {
+		uf.parent[rootA] = b
+	} else if uf.rank[a] > uf.rank[rootB] {
+		uf.parent[rootB] = rootA
+	} else {
+		uf.parent[rootB] = rootA
+		uf.rank[rootA]++
+	}
+
+	return true
+}
+
+func newUnionFind(n int) unionFind {
+	parent := make([]int, n)
+	rank := make([]int, n)
+
+	for i := 0; i < n; i++ {
+		parent[i] = i
+	}
+
+	return unionFind{
+		parent,
+		rank,
+	}
+}
+
+func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 	mstWeight := 0
 
 	{
-		for _, edge := range edges {
-			adjs[edge[0]] = append(adjs[edge[0]], [2]int{edge[1], edge[2]})
-			adjs[edge[1]] = append(adjs[edge[1]], [2]int{edge[0], edge[2]})
+		currEdge := make([][]int, len(edges))
+		copy(currEdge, edges)
+		mh := minHeap(currEdge)
+		heap.Init(&mh)
+
+		uf := newUnionFind(n)
+
+		for len(mh) > 0 {
+			popped := heap.Pop(&mh).([]int)
+			a, b, weight := popped[0], popped[1], popped[2]
+
+			if uf.Union(a, b) {
+				mstWeight += weight
+			}
 		}
+	}
 
-		mh := &minHeap{
-			{0, 0},
-		}
+	criticalEdges := []int{}
+	pseudoCriticalEdges := []int{}
 
-		visit := make([]bool, n)
-		edgeBuildCount := -1
+	{
+		for currIndex, currEdge := range edges {
+			{
+				edgesWithoutCurrEdge := [][]int{}
 
-		for edgeBuildCount < n-1 {
-			popped := heap.Pop(mh).([2]int)
-			node, weight := popped[0], popped[1]
+				for i, edge := range edges {
+					if i != currIndex {
+						edgesWithoutCurrEdge = append(edgesWithoutCurrEdge, edge)
+					}
+				}
 
-			if visit[node] {
-				continue
+				mh := minHeap(edgesWithoutCurrEdge)
+				heap.Init(&mh)
+
+				uf := newUnionFind(n)
+
+				totalWeight := 0
+
+				for len(mh) > 0 {
+					popped := heap.Pop(&mh).([]int)
+					a, b, weight := popped[0], popped[1], popped[2]
+
+					if uf.Union(a, b) {
+						totalWeight += weight
+					}
+				}
+
+				allConnected := true
+
+				for i := 1; i < n; i++ {
+					if uf.Find(i-1) != uf.Find(i) {
+						allConnected = false
+					}
+				}
+
+				if totalWeight > mstWeight || !allConnected {
+					criticalEdges = append(criticalEdges, currIndex)
+					continue
+				}
 			}
 
-			visit[node] = true
-			mstWeight += weight
-			edgeBuildCount++
+			{
+				edgesWithoutCurrEdge := [][]int{}
 
-			for _, adj := range adjs[node] {
-				nextNode, nextWeight := adj[0], adj[1]
-				if !visit[nextNode] {
-					heap.Push(mh, [2]int{nextNode, nextWeight})
+				for i, edge := range edges {
+					if i != currIndex {
+						edgesWithoutCurrEdge = append(edgesWithoutCurrEdge, edge)
+					}
+				}
+
+				mh := minHeap(edgesWithoutCurrEdge)
+				heap.Init(&mh)
+
+				uf := newUnionFind(n)
+				uf.Union(currEdge[0], currEdge[1])
+				totalWeight := currEdge[2]
+
+				for len(mh) > 0 {
+					popped := heap.Pop(&mh).([]int)
+					a, b, weight := popped[0], popped[1], popped[2]
+
+					if uf.Union(a, b) {
+						totalWeight += weight
+					}
+				}
+
+				if totalWeight == mstWeight {
+					pseudoCriticalEdges = append(pseudoCriticalEdges, currIndex)
 				}
 			}
 		}
 	}
 
-	criticalEdge := []int{}
-	pseudoCriticalEdge := []int{}
-
-	for currEdgeIndex, currEdge := range edges {
-		adjWithoutCurr := make([][][2]int, n)
-
-		{
-
-			for j, edge := range edges {
-				if currEdgeIndex != j {
-					adjWithoutCurr[edge[0]] = append(adjWithoutCurr[edge[0]], [2]int{edge[1], edge[2]})
-					adjWithoutCurr[edge[1]] = append(adjWithoutCurr[edge[1]], [2]int{edge[0], edge[2]})
-				}
-			}
-
-			startNode := 0
-
-			if currEdgeIndex == 0 {
-				startNode = 1
-
-			}
-			mh := &minHeap{
-				{startNode, 0},
-			}
-
-			visit := make([]bool, n)
-			edgeBuildCount := -1
-			totalWeight := 0
-
-			for edgeBuildCount < n-1 && len(*mh) > 0 {
-				popped := heap.Pop(mh).([2]int)
-
-				node, weight := popped[0], popped[1]
-
-				if visit[node] {
-					continue
-				}
-
-				visit[node] = true
-				totalWeight += weight
-				edgeBuildCount++
-
-				for _, adj := range adjWithoutCurr[node] {
-					nextNode, nextWeight := adj[0], adj[1]
-					if !visit[nextNode] {
-						heap.Push(mh, [2]int{nextNode, nextWeight})
-					}
-				}
-			}
-
-			visitCount := 0
-
-			for _, v := range visit {
-				if v {
-					visitCount++
-				}
-			}
-
-			if totalWeight > mstWeight || visitCount != n {
-				criticalEdge = append(criticalEdge, currEdgeIndex)
-				continue
-			}
-		}
-
-		{
-			mh := &minHeap{}
-			visit := make([]bool, n)
-			edgeBuildCount := 1
-			totalWeight := currEdge[2]
-			visit[currEdge[0]] = true
-			visit[currEdge[1]] = true
-
-			for _, adj := range adjWithoutCurr[currEdge[0]] {
-				heap.Push(mh, adj)
-			}
-			for _, adj := range adjWithoutCurr[currEdge[1]] {
-				heap.Push(mh, adj)
-			}
-
-			for edgeBuildCount < n-1 && len(*mh) > 0 {
-				popped := heap.Pop(mh).([2]int)
-				node, weight := popped[0], popped[1]
-
-				if visit[node] {
-					continue
-				}
-
-				visit[node] = true
-				edgeBuildCount++
-				totalWeight += weight
-
-				for _, adj := range adjWithoutCurr[node] {
-					nextNode, nextWeight := adj[0], adj[1]
-					if !visit[nextNode] {
-						heap.Push(mh, [2]int{nextNode, nextWeight})
-					}
-				}
-
-			}
-
-			if totalWeight == mstWeight {
-				pseudoCriticalEdge = append(pseudoCriticalEdge, currEdgeIndex)
-			}
-		}
-
-	}
-
-	return [][]int{criticalEdge, pseudoCriticalEdge}
+	return [][]int{criticalEdges, pseudoCriticalEdges}
 }
