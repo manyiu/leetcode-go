@@ -1,38 +1,43 @@
 package courseschedule
 
-func dfs(al map[int][]int, cur int, v map[int]bool) bool {
-	if len(al[cur]) == 0 {
-		return true
-	}
-
-	if v[cur] {
+func dfs(src int, adj [][]int, visit, path []bool, topSort *[]int) bool {
+	if path[src] {
 		return false
 	}
 
-	v[cur] = true
+	if visit[src] {
+		return true
+	}
 
-	for _, c := range al[cur] {
-		if !dfs(al, c, v) {
+	visit[src] = true
+	path[src] = true
+
+	for _, i := range adj[src] {
+		if !dfs(i, adj, visit, path, topSort) {
 			return false
 		}
 	}
 
-	v[cur] = false
-	al[cur] = []int{}
+	*topSort = append(*topSort, src)
+
+	path[src] = false
 
 	return true
 }
 
 func canFinish(numCourses int, prerequisites [][]int) bool {
-	adjacencyList := map[int][]int{}
-	visited := map[int]bool{}
+	adj := make([][]int, numCourses)
 
-	for _, prerequisite := range prerequisites {
-		adjacencyList[prerequisite[0]] = append(adjacencyList[prerequisite[0]], prerequisite[1])
+	for _, pre := range prerequisites {
+		adj[pre[0]] = append(adj[pre[0]], pre[1])
 	}
 
+	visit := make([]bool, numCourses)
+	path := make([]bool, numCourses)
+	topSort := []int{}
+
 	for i := 0; i < numCourses; i++ {
-		if !dfs(adjacencyList, i, visited) {
+		if !dfs(i, adj, visit, path, &topSort) {
 			return false
 		}
 	}
