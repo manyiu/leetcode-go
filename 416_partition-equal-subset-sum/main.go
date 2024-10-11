@@ -1,23 +1,5 @@
 package partitionequalsubsetsum
 
-import "strconv"
-
-func dfs(nums []int, i, target int, cache map[string]bool) bool {
-	if i >= len(nums) || target < 0 {
-		return false
-	}
-
-	if target-nums[i] == 0 {
-		return true
-	}
-
-	key := strconv.Itoa(i) + "-" + strconv.Itoa(target)
-
-	cache[key] = dfs(nums, i+1, target, cache) || dfs(nums, i+1, target-nums[i], cache)
-
-	return cache[key]
-}
-
 func canPartition(nums []int) bool {
 	sum := 0
 
@@ -31,7 +13,25 @@ func canPartition(nums []int) bool {
 
 	target := sum / 2
 
-	cache := map[string]bool{}
+	dp := make([][]bool, len(nums)+1)
 
-	return dfs(nums, 0, target, cache)
+	for i := 0; i < len(dp); i++ {
+		dp[i] = make([]bool, target+1)
+	}
+
+	dp[0][0] = true
+
+	for i := 1; i < len(dp); i++ {
+		for j := 0; j < len(dp[i]); j++ {
+			if j-nums[i-1] >= 0 {
+				dp[i][j] = dp[i-1][j-nums[i-1]] || dp[i-1][j]
+			} else {
+				dp[i][j] = dp[i-1][j]
+			}
+		}
+	}
+
+	result := dp[len(nums)][target]
+
+	return result
 }
