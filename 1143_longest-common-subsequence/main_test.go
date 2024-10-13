@@ -43,4 +43,13 @@ func TestLongestCommonSubsequence(t *testing.T) {
 		t.Errorf("Expected %d but got %d", expected, result)
 	}
 
+	text1 = "bsbininm"
+	text2 = "jmjkbkjkv"
+
+	expected = 1
+	result = longestCommonSubsequence(text1, text2)
+
+	if result != expected {
+		t.Errorf("Expected %d but got %d", expected, result)
+	}
 }
