@@ -7,11 +7,11 @@ func TestCountSubstrings(t *testing.T) {
 		in   string
 		want int
 	}{
-		// {"abc", 3},
-		// {"aaa", 6},
-		// {"abba", 6},
-		// {"a", 1},
-		// {"", 0},
+		{"abc", 3},
+		{"aaa", 6},
+		{"abba", 6},
+		{"a", 1},
+		{"", 0},
 		{"fdsklf", 6},
 	}
 	for _, test := range tests {
