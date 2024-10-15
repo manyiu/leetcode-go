@@ -1,29 +1,29 @@
 package interleavingstring
 
-func backtrack(s1, s2, s3 string, i1, i2, i3 int) bool {
-	if i3 >= len(s3) && (i1 < len(s1) || i2 < len(s2)) {
+func isInterleave(s1 string, s2 string, s3 string) bool {
+	if len(s1)+len(s2) != len(s3) {
 		return false
 	}
 
-	if i3 >= len(s3) {
-		return true
+	dp := make([][]bool, len(s1)+1)
+
+	for i := 0; i < len(dp); i++ {
+		dp[i] = make([]bool, len(s2)+1)
 	}
 
-	if i1 < len(s1) && s1[i1] == s3[i3] && i2 < len(s2) && s2[i2] == s3[i3] {
-		return backtrack(s1, s2, s3, i1+1, i2, i3+1) || backtrack(s1, s2, s3, i1, i2+1, i3+1)
+	dp[len(s1)][len(s2)] = true
+
+	for i := len(s1); i >= 0; i-- {
+		for j := len(s2); j >= 0; j-- {
+			if i < len(s1) && s1[i] == s3[i+j] && dp[i+1][j] {
+				dp[i][j] = true
+			}
+
+			if j < len(s2) && s2[j] == s3[i+j] && dp[i][j+1] {
+				dp[i][j] = true
+			}
+		}
 	}
 
-	if i1 < len(s1) && s1[i1] == s3[i3] {
-		return backtrack(s1, s2, s3, i1+1, i2, i3+1)
-	}
-
-	if i2 < len(s2) && s2[i2] == s3[i3] {
-		return backtrack(s1, s2, s3, i1, i2+1, i3+1)
-	}
-
-	return false
-}
-
-func isInterleave(s1 string, s2 string, s3 string) bool {
-	return backtrack(s1, s2, s3, 0, 0, 0)
+	return dp[0][0]
 }
